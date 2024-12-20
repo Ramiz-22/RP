@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ramiz project</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .present {
+        background-color: #c8e6c9;
+      }
+      .absent {
+        background-color: #ffcdd2;
+      }
+      .homework,
+      .presentation {
+        background-color: #bbdefb;
+      }
+      .homework.absent,
+      .presentation.absent {
+        background-color: #ffcdd2;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Attendance Tracker</h1>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Oct 3</th>
+          <th>Oct 10</th>
+          <th>Oct 17</th>
+          <th>Oct 24</th>
+          <th>Oct 31</th>
+          <th>Nov 7</th>
+          <th>Nov 14</th>
+          <th>Nov 21</th>
+          <th>Nov 28</th>
+        </tr>
+      </thead>
+      <tbody id="studentTable"></tbody>
+    </table>
+
+    <button onclick="saveAttendance()">Save Attendance</button>
+    <div id="message"></div>
+
+    <script>
+      const studentNames = [
+        "Student 1",
+        "Student 2",
+        "Student 3",
+        "Student 4",
+        "Student 5",
+        "Student 6",
+        "Student 7",
+        "Student 8",
+        "Student 9",
+        "Student 10",
+      ];
+
+      const dates = [
+        "Oct 3",
+        "Oct 10",
+        "Oct 17",
+        "Oct 24",
+        "Oct 31",
+        "Nov 7",
+        "Nov 14",
+        "Nov 21",
+        "Nov 28",
+      ];
+
+      const statusOptions = [
+        { value: "present", text: "Present" },
+        { value: "absent", text: "Absent" },
+        { value: "homework", text: "Homework" },
+        { value: "presentation", text: "Presentation" },
+      ];
+
+      const studentTable = document.getElementById("studentTable");
+
+      function createRow(studentName) {
+        const row = studentTable.insertRow();
+        const nameCell = row.insertCell();
+        nameCell.textContent = studentName;
+
+        for (let i = 0; i < dates.length; i++) {
+          const statusCell = row.insertCell();
+          const select = document.createElement("select");
+          select.classList.add("status");
+
+          statusOptions.forEach((option) => {
+            const optionElement = document.createElement("option");
+            optionElement.value = option.value;
+            optionElement.text = option.text;
+            select.appendChild(optionElement);
+          });
+
+          statusCell.appendChild(select);
+        }
+      }
+
+      studentNames.forEach(createRow);
+
+      function saveAttendance() {
+        const rows = studentTable.rows;
+        const attendanceData = [];
+
+        for (let i = 0; i < rows.length; i++) {
+          const studentName = rows[i].cells[0].textContent;
+          const studentAttendance = [];
+          for (let j = 1; j < rows[i].cells.length; j++) {
+            studentAttendance.push(
+              rows[i].cells[j].querySelector(".status").value
+            );
+          }
+          attendanceData.push({
+            name: studentName,
+            attendance: studentAttendance,
+          });
+        }
+
+        localStorage.setItem("attendanceData", JSON.stringify(attendanceData));
+        document.getElementById("message").textContent = "Attendance saved!";
+
+        for (let i = 0; i < rows.length; i++) {
+          for (let j = 1; j < rows[i].cells.length; j++) {
+            const statusCell = rows[i].cells[j];
+            const status = statusCell.querySelector(".status").value;
+            statusCell.classList.remove(
+              "present",
+              "absent",
+              "homework",
+              "presentation"
+            );
+            statusCell.classList.add(status);
+          }
+        }
+      }
+
+      window.onload = () => {
+        const savedData = localStorage.getItem("attendanceData");
+        if (savedData) {
+          const attendanceData = JSON.parse(savedData);
+          console.log("Loaded data:", attendanceData);
+
+        }
+      };
+    </script>
+  </body>
+</html>
